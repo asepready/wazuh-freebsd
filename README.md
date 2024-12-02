@@ -1,0 +1,2 @@
+# wazuh-freebsd
+SIEM

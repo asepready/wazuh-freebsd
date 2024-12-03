@@ -1,4 +1,6 @@
-pkg install bash wazuh-indexer wazuh-server wazuh-dashboard
+server_ip=127.0.0.1
+
+pkg bash wazuh-indexer wazuh-server wazuh-dashboard
 
 openssl req -x509 -batch -nodes -days 365 -newkey rsa:2048 -subj "/C=US/ST=California/CN=Wazuh/" -keyout /var/ossec/etc/sslmanager.key -out /var/ossec/etc/sslmanager.cert
 chmod 640 /var/ossec/etc/sslmanager.key
@@ -6,12 +8,13 @@ chmod 640 /var/ossec/etc/sslmanager.cert
 
 cp /etc/localtime /var/ossec/etc
 cp var/ossec/etc/ossec.conf /var/ossec/etc
-CP usr/local/etc/beats/filebeat.yml /usr/local/etc/beats/
-CP usr/local/etc/logstash/logstash.conf /usr/local/etc/logstash/
+cp usr/local/etc/beats/filebeat.yml /usr/local/etc/beats/
+cp usr/local/etc/logstash/logstash.conf /usr/local/etc/logstash/
 cp /usr/local/etc/wazuh-server/wazuh-template.json /usr/local/etc/logstash/
-CP usr/local/etc/opensearch/opensearch.yml /usr/local/etc/opensearch/opensearch.yml
-CP usr/local/etc/opensearch-dashboards/opensearch_dashboards.yml /usr/local/etc/opensearch-dashboards/
-CP root/bootstrap.sh /root/
+cp usr/local/etc/opensearch/opensearch.yml /usr/local/etc/opensearch/opensearch.yml
+cp usr/local/etc/opensearch-dashboards/opensearch_dashboards.yml /usr/local/etc/opensearch-dashboards/
+cp etc/hosts /etc/
+cp root/bootstrap.sh /root/
 
 sed -e "s,%%SERVER_IP%%,${server_ip},g" -i "" /usr/local/etc/beats/filebeat.yml
 sed -e "s,%%SERVER_IP%%,${server_ip},g" -i "" /usr/local/etc/logstash/logstash.conf
@@ -61,24 +64,24 @@ cp /root/wazuh-gen-certs/wazuh-certificates/root-ca.pem /usr/local/etc/opensearc
 chmod 640 /usr/local/etc/opensearch-dashboards/certs/root-ca.pem
 chown www:www /usr/local/etc/opensearch-dashboards/certs/root-ca.pem
 
-SYSRC wazuh_manager_enable=YES
-SYSRC filebeat_enable=YES
-SYSRC logstash_enable=YES
-SYSRC opensearch_enable=YES
-SYSRC opensearch_dashboards_enable=YES
-SYSRC opensearch_dashboards_syslog_output_enable=YES
+sysrc wazuh_manager_enable=YES
+sysrc filebeat_enable=YES
+sysrc logstash_enable=YES
+sysrc opensearch_enable=YES
+sysrc opensearch_dashboards_enable=YES
+sysrc opensearch_dashboards_syslog_output_enable=YES
 
-SERVICE opensearch start
+service opensearch start
 
-RDR udp 1514 1514
-RDR tcp 1515 1515
-RDR tcp 5601 5601
-RDR tcp 55000 55000
+#RDR udp 1514 1514
+#RDR tcp 1515 1515
+#RDR tcp 5601 5601
+#RDR tcp 55000 55000
 
 sh /root/bootstrap.sh
 rm /root/bootstrap.sh
 
-SERVICE wazuh-manager start
-SERVICE filebeat start
-SERVICE logstash start
-SERVICE opensearch-dashboards start
+service wazuh-manager start
+service filebeat start
+service logstash start
+service opensearch-dashboards start
